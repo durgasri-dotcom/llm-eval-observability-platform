@@ -1,0 +1,59 @@
+{
+  "version": "v0",
+  "domain": "LangChain documentation (v0.1 - v0.3)",
+  "notes": "Starter batch. Expand to 30-50 items before Week 1 baseline run. Verify all expected_answer fields against actual current LangChain docs before use -- some API details below are illustrative placeholders and MUST be checked, not assumed correct.",
+  "items": [
+    {
+      "id": "q001",
+      "tier": "single-hop-factual",
+      "question": "In LangChain v0.3, what package do you import ChatOpenAI from?",
+      "expected_answer": "TODO: verify current import path (langchain_openai vs langchain.chat_models) against live docs",
+      "difficulty": "easy"
+    },
+    {
+      "id": "q002",
+      "tier": "version-migration",
+      "question": "How did the recommended way to initialize conversation memory change between LangChain v0.1 and v0.3?",
+      "expected_answer": "TODO: verify -- v0.1 relied on ConversationBufferMemory classes; later versions shifted toward LangGraph-based state/persistence. Confirm exact migration path and deprecation notes.",
+      "difficulty": "hard",
+      "note": "Core version-migration test case -- tests whether the system knows which version it's answering for."
+    },
+    {
+      "id": "q003",
+      "tier": "version-migration",
+      "question": "Is the LLMChain class still the recommended pattern in the current version of LangChain, or has it been deprecated in favor of something else?",
+      "expected_answer": "TODO: verify current deprecation status and recommended replacement (e.g. LCEL / composed runnables)",
+      "difficulty": "medium"
+    },
+    {
+      "id": "q004",
+      "tier": "hallucination-probe",
+      "question": "What does the LangChain.Agent.run() method do?",
+      "expected_answer": "This method/class path does not exist in LangChain. A correct answer should say so rather than inventing a plausible-sounding description.",
+      "difficulty": "hard",
+      "note": "Adversarial question -- directly measures hallucination rate. Keep several of these in the final set."
+    },
+    {
+      "id": "q005",
+      "tier": "hallucination-probe",
+      "question": "Which version of LangChain introduced the smart_retry parameter on the base LLM class?",
+      "expected_answer": "No such parameter exists. Correct answer should decline to name a version rather than fabricating one.",
+      "difficulty": "hard"
+    },
+    {
+      "id": "q006",
+      "tier": "multi-hop",
+      "question": "If I'm upgrading a RAG pipeline built on LangChain v0.1 retrievers to v0.3, what are the concrete code changes I need to make, and which of those are breaking vs backward-compatible?",
+      "expected_answer": "TODO: verify against actual changelog/migration guide entries for retriever interfaces",
+      "difficulty": "hard",
+      "note": "Requires chaining two docs sections (old API + new API + changelog) -- good multi-hop test."
+    },
+    {
+      "id": "q007",
+      "tier": "single-hop-factual",
+      "question": "What is LCEL (LangChain Expression Language) used for?",
+      "expected_answer": "TODO: verify current official description against docs",
+      "difficulty": "easy"
+    }
+  ]
+}
