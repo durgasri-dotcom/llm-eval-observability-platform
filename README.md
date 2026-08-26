@@ -1,67 +1,85 @@
-# Eval Platform
+# eval-platform
 
-An evaluation and regression-gating harness for LLM/RAG systems, built and
-tested against a LangChain-documentation Q&A system spanning versions
-v0.1-v0.3.
+Eval + regression gating for LLM/RAG systems. Built it against a LangChain-docs
+Q&A system (v0.1 -> v1.x) so there'd be an actual moving target to test on.
 
-Status: Week 1 in progress (golden dataset drafted, baseline runner scaffolded,
-subject RAG system not yet wired up).
+Still building this. Offline eval (dataset, judge, CI gate) mostly works.
+Online/production loop is scaffolded but not wired up yet.
 
-## Why this project
+## why
 
-Most GenAI portfolios show a RAG chatbot. Very few show a system that
-decides, automatically and with statistical rigor, whether a change to a
-prompt or model is safe to ship. This is that second thing.
+Most portfolios have a RAG chatbot. Almost nobody ships something that decides,
+automatically, whether a prompt/model change is safe to merge. That's this.
 
-## What it does (target state)
+## what's actually working right now
 
-Offline eval (Weeks 1-3, original scope):
+- Corpus pulled from real LangChain repos at 3 version anchors (v0.1.20, v0.3.0,
+  and current). Had to split it across two repos since LangChain moved its docs
+  out of the main repo at some point after v0.3 and I didn't know that going in.
+- Retrieval: bge-base-en-v1.5 embeddings + bge-reranker-base on top. Started
+  with a fancier embedding model (Qwen3, top of the open-source leaderboard)
+  and it OOM'd my machine trying to allocate 32GB for a causal attention mask.
+  Switched to something that actually runs.
+- Answer generation via `init_chat_model()` so the LLM provider isn't hardcoded
+  — same pattern LangChain itself recommends, which felt right given what this
+  project is testing.
+- LLM judge (faithfulness, 1-5), checked against my own manual scoring on the
+  same 7 questions. Agreed with me 4/7 times. See below, this was more useful
+  than it sounds.
 
-- Runs a golden Q&A set against a subject RAG system and scores answers on
-  faithfulness, retrieval precision, and hallucination rate
-- Validates its own LLM-judge against a human-labeled subset (reports
-  agreement rate, not just judge scores)
-- Compares two configs with confidence intervals, not just raw score deltas
-- Blocks a GitHub PR automatically if eval metrics regress below threshold
+## what's not built yet
 
-Production-pattern extensions (added to match current 2026 practice --
-LLM observability has shifted from offline-only eval toward trace-based,
-continuous production evaluation; see README "Why the extra scope" below):
+- CI gate (GitHub Action blocking a PR on regression)
+- Confidence intervals for comparing two configs
+- The online/production simulation loop (tracing + drift alerting scaffolding
+  exists in `tracing/` and `online_eval/`, not connected to anything real)
+- Golden dataset is only 7 questions right now, needs to be 30-50
 
-- OpenTelemetry-instrumented tracing: every retrieval, LLM call, and tool
-  invocation is a nested span, not a flat log line
-- A simulated production traffic loop with continuous online LLM-judge
-  scoring and drift alerting, not just one-shot offline eval
-- A trace-to-dataset feedback loop: flagged/low-scoring production-simulated
-  queries get curated back into the golden dataset automatically
+## judge calibration
 
-## Why the extra scope
+Scored the same 7 answers myself before looking at the judge's output.
+Agreement: 4/7.
 
-As of 2026, LLM observability tooling (Langfuse, LangSmith, Braintrust,
-Arize, Opik) treats the trace -- not the offline batch eval run -- as the
-primary object, and evaluation has shifted toward continuous scoring of
-live traffic rather than pre-deployment-only testing. An eval harness that
-only runs offline batch jobs demonstrates 2023-era practice. Building the
-trace + online-eval loop is what makes this reflect current production
-patterns rather than a static regression script.
+Two disagreements were me being stricter than the judge — when the answer
+said "the context doesn't mention this" for a made-up method/parameter, I
+scored that lower than the judge did, because it dodges the question instead
+of actually saying "this doesn't exist." The judge doesn't currently
+distinguish those two things.
 
-## Repo structure
+One disagreement went the other way — judge scored a detailed, well-grounded
+migration answer a point lower than I did, and I genuinely can't tell why
+from the content. Not assuming the judge was right just because it's the
+"objective" one.
 
-- `datasets/` -- golden Q&A sets, versioned
-- `configs/` -- prompt/model/retrieval configs
-- `evaluators/` -- LLM-judge, retrieval metrics, human-label loader
-- `runners/` -- executes a config against a dataset (offline eval)
-- `tracing/` -- OpenTelemetry instrumentation for the subject system
-- `online_eval/` -- simulated production loop, continuous scoring, drift
-  alerting, trace-to-dataset feedback
-- `stats/` -- significance testing between runs
-- `dashboard/` -- results viewer (offline + online eval trends)
-- `.github/workflows/` -- CI eval gate
+n=7 is small. Not rewriting the judge prompt off this alone — revisiting once
+the dataset's bigger.
 
-## Failure log
+## real problems hit along the way
 
-(Populated as real issues surface during the build -- this is the
-highest-value section of the README for interviews. Keep it honest.)
+- Golden dataset built on live/updating data sources isn't reproducible —
+  run the same eval twice, get different ground truth. Learned this before
+  even picking a domain, when I almost built this against a live threat-intel
+  feed instead.
+- Retrieval ranked a page that _explains_ what a chat model is above the page
+  that actually _shows you how to make one_, for a "how do I..." query.
+  Added reranking, which fixed this specific case but not universally —
+  same topic, different phrasing of the question, still sometimes misses the
+  right doc.
+- Reranker scores cluster tight (0.96-0.99) when several results are actually
+  good — that's the model being confident about all of them, not broken. Can't
+  use the raw score as a hard threshold later for the online drift alerting.
+- First embedding model pick crashed on my hardware. Top of a leaderboard
+  doesn't mean it fits your machine.
 
-- Live/time-sensitive data sources break reproducible eval unless snapshotted
-  as fixtures (surfaced while drafting an earlier domain draft)
+## repo layout
+
+```
+datasets/       golden Q&A sets
+configs/        prompt/model configs
+evaluators/     llm judge, retrieval metrics
+runners/        offline eval runner
+subject_system/ the actual RAG system being tested
+corpus_build/   scripts that pull and filter the langchain docs corpus
+tracing/        otel-style tracing, scaffolded, not wired up
+online_eval/    production-sim loop, scaffolded, not wired up
+```

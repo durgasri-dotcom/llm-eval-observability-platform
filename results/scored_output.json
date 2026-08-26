@@ -1,0 +1,93 @@
+[
+  {
+    "run_id": "cc967f91",
+    "question_id": "q001",
+    "question": "In LangChain v0.3, what package do you import ChatOpenAI from?",
+    "answer": "In LangChain v0.3, you import ChatOpenAI from `langchain_openai`.",
+    "latency_ms": 29486.62757873535,
+    "prompt_tokens": 5810,
+    "completion_tokens": 20,
+    "estimated_cost_usd": 0.0008834999999999998,
+    "config_name": "baseline_v0",
+    "timestamp": 1787772028.9792335,
+    "judge_score": 5
+  },
+  {
+    "run_id": "cc967f91",
+    "question_id": "q002",
+    "question": "How did the recommended way to initialize conversation memory change between LangChain v0.1 and v0.3?",
+    "answer": "In LangChain v0.1, you would initialize conversation memory using `ConversationBufferMemory` directly, as shown in examples where memory is created without any parameters. \n\nIn LangChain v0.3, you still initialize conversation memory with `ConversationBufferMemory`, but the documentation does not specify any changes to how you initialize it, indicating that the basic use remains consistent. However, LangChain v0.3 emphasizes the integration of memory within chains and might include new methods or parameters for configuring memory that were not present in v0.1. \n\nOverall, while specific initialization syntax may not have fundamentally changed, the context in how memory is integrated and used across the system may have evolved.",
+    "latency_ms": 15070.087194442749,
+    "prompt_tokens": 7131,
+    "completion_tokens": 139,
+    "estimated_cost_usd": 0.0011530499999999999,
+    "config_name": "baseline_v0",
+    "timestamp": 1787772044.0493207,
+    "judge_score": 4
+  },
+  {
+    "run_id": "cc967f91",
+    "question_id": "q003",
+    "question": "Is the LLMChain class still the recommended pattern in the current version of LangChain, or has it been deprecated in favor of something else?",
+    "answer": "The provided context does not mention the `LLMChain` class, so I cannot determine its current status or whether it has been deprecated.",
+    "latency_ms": 11783.901453018188,
+    "prompt_tokens": 6885,
+    "completion_tokens": 28,
+    "estimated_cost_usd": 0.0010495499999999998,
+    "config_name": "baseline_v0",
+    "timestamp": 1787772055.8342218,
+    "judge_score": 5
+  },
+  {
+    "run_id": "cc967f91",
+    "question_id": "q004",
+    "question": "What does the LangChain.Agent.run() method do?",
+    "answer": "The context does not provide any information about the `LangChain.Agent.run()` method.",
+    "latency_ms": 15074.760675430298,
+    "prompt_tokens": 5678,
+    "completion_tokens": 17,
+    "estimated_cost_usd": 0.0008619,
+    "config_name": "baseline_v0",
+    "timestamp": 1787772070.9089825,
+    "judge_score": 5
+  },
+  {
+    "run_id": "cc967f91",
+    "question_id": "q005",
+    "question": "Which version of LangChain introduced the smart_retry parameter on the base LLM class?",
+    "answer": "The provided context does not mention the smart_retry parameter or the specific version of LangChain that introduced it.",
+    "latency_ms": 13267.33946800232,
+    "prompt_tokens": 7161,
+    "completion_tokens": 21,
+    "estimated_cost_usd": 0.0010867499999999998,
+    "config_name": "baseline_v0",
+    "timestamp": 1787772084.176322,
+    "judge_score": 5
+  },
+  {
+    "run_id": "cc967f91",
+    "question_id": "q006",
+    "question": "If I'm upgrading a RAG pipeline built on LangChain v0.1 retrievers to v0.3, what are the concrete code changes I need to make, and which of those are breaking vs backward-compatible?",
+    "answer": "To upgrade a RAG pipeline built on LangChain v0.1 to v0.3, here are the concrete code changes you need to make, categorized into breaking and backward-compatible changes:\n\n### Breaking Changes:\n1. **Python Version Requirement**: Ensure your environment is using **Python 3.10 or higher**. Python 3.9 is no longer supported.\n  \n2. **Pydantic Version**: You need to transition to **Pydantic v2**. This involves:\n   - Replacing any usage of `langchain_core.pydantic_v1` or `langchain.pydantic_v1` with direct imports from `pydantic`.\n   - Ensure that if you're using Pydantic aside from LangChain, you upgrade your pydantic version constraints to `pydantic>=2,<3`.\n\n3. **Removal of `create_react_agent`**: If you were using `create_react_agent`, you need to switch to `create_agent` from LangChain:\n   ```python\n   from langchain.agents import create_agent\n\n   agent = create_agent(\n       model,\n       tools,\n       system_prompt=\"You are a helpful assistant.\",\n   )\n   ```\n   This is a significant change as the `create_react_agent` method has been deprecated.\n\n4. **Tool Definition Changes**: If you have custom tools, ensure they are adapted from the previous `Tool` definitions that may have relied on older Pydantic structures.\n\n5. **No More Automatic `Schema` Suffix**: The automatic addition of the suffix `Schema` to tool names has been removed, so ensure your tool definitions reflect the expected naming.\n\n### Backward-Compatible Changes:\n1. **Upgrade Commands**: You can run both commands for upgrading:\n   ```bash\n   pip install -U langgraph langchain-core\n   ```\n   or \n   ```bash\n   uv add langgraph langchain-core\n   ```\n   These commands are straightforward and backward compatible as they allow you to install the latest versions.\n\n2. **Tool Usage**: While the APIs for managing tools changed as mentioned above, ensuring the definitions and usage of tools are aligned with the latest version should not break existing functionality that adheres to the new schema. However, migrating to the new structure is necessary for forward compatibility.\n\n### Summary:\nThe upgrade is significant due to the transition to Python 3.10, Pydantic v2, and the deprecation of certain functions. Pay particular attention to the breaking changes, as these require code modifications, while the backward-compatible changes primarily involve updating to newer package versions.",
+    "latency_ms": 18593.714952468872,
+    "prompt_tokens": 5452,
+    "completion_tokens": 531,
+    "estimated_cost_usd": 0.0011363999999999999,
+    "config_name": "baseline_v0",
+    "timestamp": 1787772102.770037,
+    "judge_score": 4
+  },
+  {
+    "run_id": "cc967f91",
+    "question_id": "q007",
+    "question": "What is LCEL (LangChain Expression Language) used for?",
+    "answer": "LCEL (LangChain Expression Language) is used to easily compose chains together in a declarative way. It is designed to support putting prototypes in production without code changes, enabling users to create both simple and complex chains that can run reliably. Key benefits of using LCEL include first-class streaming support, async support, optimized parallel execution, the ability to configure retries and fallbacks, access to intermediate results, input and output schemas for validation, seamless LangSmith tracing for observability, and easy deployment using LangServe.",
+    "latency_ms": 12520.424604415894,
+    "prompt_tokens": 4367,
+    "completion_tokens": 103,
+    "estimated_cost_usd": 0.0007168499999999999,
+    "config_name": "baseline_v0",
+    "timestamp": 1787772115.291462,
+    "judge_score": 5
+  }
+]
