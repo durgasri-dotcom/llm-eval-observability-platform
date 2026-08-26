@@ -1,0 +1,19 @@
+name: reduced_context_v0
+model: "openai:gpt-4o-mini"
+retrieval:
+  top_k: 2
+  chunk_size: 500
+  chunk_overlap: 50
+prompt_template: |
+  You are a documentation assistant for LangChain. Answer using only the
+  provided context. If the answer isn't in the context, or the method
+  being asked about doesn't exist, say so.
+
+  Context:
+  {context}
+
+  Question:
+  {question}
+cost_per_1k_tokens:
+  prompt: 0.00015
+  completion: 0.0006

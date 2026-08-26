@@ -37,7 +37,8 @@ def load_config(path):
 
 
 def call_subject_system(question, config):
-    result = answer_question(question, model_id=config["model"])
+    top_k = config.get("retrieval", {}).get("top_k", 5)
+    result = answer_question(question, model_id=config["model"], top_k=top_k)
     return {
         "answer": result["answer"],
         "prompt_tokens": result["prompt_tokens"],

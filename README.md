@@ -35,6 +35,26 @@ automatically, whether a prompt/model change is safe to merge. That's this.
   exists in `tracing/` and `online_eval/`, not connected to anything real)
 - Golden dataset is only 7 questions right now, needs to be 30-50
 
+## config comparison (top_k=5 vs top_k=2)
+
+Ran the same 30-question set through baseline (top_k=5) and a reduced-context
+config (top_k=2), judged both, compared with a paired bootstrap CI (10k
+resamples) on the score differences rather than a t-test, since judge scores
+are discrete 1-5 values, not continuous/normal.
+
+mean baseline: 4.77, mean reduced: 4.87, 95% CI on the difference: [-0.2, 0.0]
+
+Not significant. Can't confidently say cutting context in half hurt
+faithfulness in this sample. Worth being precise here: reduced context scored
+numerically higher, but the CI straddles zero, so that's noise, not a real
+"less context is better" finding -- don't want to overclaim a result the
+stats don't support.
+
+This also lines up with the judge-resolution problem below: a metric that
+can't detect the difference between 5 retrieved chunks and 2 retrieved
+chunks may not have the resolution to catch real quality differences,
+independent of whether those differences exist.
+
 ## judge calibration
 
 Scored the same 7 answers myself before looking at the judge's output.
