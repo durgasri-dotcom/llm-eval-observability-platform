@@ -1,11 +1,15 @@
 import argparse
 import json
+import sys
 import time
 import uuid
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
 import yaml
+
+sys.path.insert(0, str(Path(__file__).parent.parent / "subject_system"))
+from answer import answer_question
 
 
 @dataclass
@@ -33,7 +37,12 @@ def load_config(path):
 
 
 def call_subject_system(question, config):
-    raise NotImplementedError
+    result = answer_question(question, model_id=config["model"])
+    return {
+        "answer": result["answer"],
+        "prompt_tokens": result["prompt_tokens"],
+        "completion_tokens": result["completion_tokens"],
+    }
 
 
 def estimate_cost(prompt_tokens, completion_tokens, config):

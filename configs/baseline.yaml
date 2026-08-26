@@ -1,5 +1,5 @@
 name: baseline_v0
-model: "gpt-4o-mini"
+model: "openai:gpt-4o-mini"
 retrieval:
   top_k: 5
   chunk_size: 500
