@@ -88,6 +88,15 @@ the dataset's bigger.
 - Reranker scores cluster tight (0.96-0.99) when several results are actually
   good — that's the model being confident about all of them, not broken. Can't
   use the raw score as a hard threshold later for the online drift alerting.
+- Added tracing to see where latency actually goes. First guess was wrong --
+  assumed reloading the embedding/reranker models from disk on every process
+  start was the bottleneck. Actual data: model load is only ~3s, reranking is
+  20-24s, consistently, every run. Cross-encoder reranking runs a real
+  transformer forward pass per (query, passage) pair -- with candidate_k=20
+  that's 20 full inferences on CPU per query, which is the real cost.
+  Deliberately not reducing candidate_k without first measuring whether it
+  hurts faithfulness through the eval harness -- a faster number I haven't
+  verified isn't actually better than a slower one I understand.
 - First embedding model pick crashed on my hardware. Top of a leaderboard
   doesn't mean it fits your machine.
 - CI gate took 5 real fixes to actually go green: an unquoted `on:` in the

@@ -14,34 +14,45 @@ _index = None
 _reranker = None
 
 
-def load():
+def load(tracer=None):
     global _model, _index, _reranker
     if _index is None:
-        with open(INDEX_PATH, "rb") as f:
-            _index = pickle.load(f)
-        _model = SentenceTransformer(_index["model"])
-        _reranker = CrossEncoder(RERANK_MODEL)
+        ctx = tracer.span("model_load") if tracer else _noop()
+        with ctx:
+            with open(INDEX_PATH, "rb") as f:
+                _index = pickle.load(f)
+            _model = SentenceTransformer(_index["model"])
+            _reranker = CrossEncoder(RERANK_MODEL)
     return _model, _index, _reranker
 
 
-def retrieve(query, top_k=5, version_filter=None, candidate_k=CANDIDATE_K):
-    model, index, reranker = load()
-    q_vec = model.encode([QUERY_PREFIX + query], normalize_embeddings=True)[0]
+class _noop:
+    def __enter__(self):
+        return self
 
-    vectors = index["vectors"]
-    chunks = index["chunks"]
+    def __exit__(self, *a):
+        return False
 
-    scores = vectors @ q_vec
 
-    if version_filter:
-        mask = np.array([c["version"] == version_filter for c in chunks])
-        scores = np.where(mask, scores, -np.inf)
+def retrieve(query, top_k=5, version_filter=None, candidate_k=CANDIDATE_K, tracer=None):
+    model, index, reranker = load(tracer)
 
-    candidate_idx = np.argsort(scores)[::-1][:candidate_k]
-    candidate_idx = [i for i in candidate_idx if scores[i] > -np.inf]
+    with (tracer.span("embed_and_search") if tracer else _noop()):
+        q_vec = model.encode([QUERY_PREFIX + query], normalize_embeddings=True)[0]
+        vectors = index["vectors"]
+        chunks = index["chunks"]
+        scores = vectors @ q_vec
 
-    pairs = [(query, chunks[i]["text"]) for i in candidate_idx]
-    rerank_scores = reranker.predict(pairs)
+        if version_filter:
+            mask = np.array([c["version"] == version_filter for c in chunks])
+            scores = np.where(mask, scores, -np.inf)
+
+        candidate_idx = np.argsort(scores)[::-1][:candidate_k]
+        candidate_idx = [i for i in candidate_idx if scores[i] > -np.inf]
+
+    with (tracer.span("rerank", candidates=len(candidate_idx)) if tracer else _noop()):
+        pairs = [(query, chunks[i]["text"]) for i in candidate_idx]
+        rerank_scores = reranker.predict(pairs)
 
     ranked = sorted(zip(candidate_idx, rerank_scores), key=lambda x: x[1], reverse=True)
 

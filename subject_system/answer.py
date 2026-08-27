@@ -37,7 +37,7 @@ def answer_question(query, model_id=DEFAULT_MODEL, top_k=5, version_filter=None,
         tracer.start_trace()
 
     with tracer.span("retrieval", top_k=top_k, version_filter=version_filter):
-        results = retrieve(query, top_k=top_k, version_filter=version_filter)
+        results = retrieve(query, top_k=top_k, version_filter=version_filter, tracer=tracer)
 
     context = build_context(results)
 
@@ -72,4 +72,5 @@ if __name__ == "__main__":
     print()
     print("trace:")
     for span in result["trace"]:
-        print(f"  {span['name']}: {span['duration_ms']:.0f}ms {span['attributes']}")
+        indent = "  " if span["parent_span_id"] else ""
+        print(f"  {indent}{span['name']}: {span['duration_ms']:.0f}ms {span['attributes']}")
