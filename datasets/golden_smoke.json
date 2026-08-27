@@ -1,0 +1,12 @@
+ {
+  "version": "smoke",
+  "domain": "LangChain documentation, fast CI subset",
+  "notes": "One question per tier, pulled from golden_v1.json. Runs on every PR. Full 30-question set runs separately, not on every commit.",
+  "items": [
+    {"id": "q001", "tier": "single-hop-factual", "question": "In LangChain v0.3, what package do you import ChatOpenAI from?", "expected_answer": "langchain_openai", "difficulty": "easy"},
+    {"id": "q004", "tier": "hallucination-probe", "question": "What does the LangChain.Agent.run() method do?", "expected_answer": "Does not exist.", "difficulty": "hard"},
+    {"id": "q008", "tier": "version-migration", "question": "What function does LangChain v1 recommend for creating an agent, replacing create_react_agent?", "expected_answer": "create_agent", "difficulty": "medium"},
+    {"id": "q006", "tier": "multi-hop", "question": "If I'm upgrading a RAG pipeline built on LangChain v0.1 retrievers to v0.3, what are the concrete code changes I need to make?", "expected_answer": "TODO: verify", "difficulty": "hard"},
+    {"id": "q019", "tier": "ambiguity-recency", "question": "Is create_react_agent still usable in LangChain v1, or will it error out?", "expected_answer": "TODO: verify", "difficulty": "hard"}
+  ]
+}
