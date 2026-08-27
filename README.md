@@ -90,6 +90,19 @@ the dataset's bigger.
   use the raw score as a hard threshold later for the online drift alerting.
 - First embedding model pick crashed on my hardware. Top of a leaderboard
   doesn't mean it fits your machine.
+- CI gate took 5 real fixes to actually go green: an unquoted `on:` in the
+  workflow YAML got parsed as the boolean `True` instead of the string key
+  (classic YAML "Norway problem"), which silently killed the trigger entirely;
+  a few files saved empty in the editor and made it into commits without
+  content, caught only by checking the raw file on GitHub, not locally;
+  `actions/checkout@v4` doesn't pull Git LFS content by default, so the vector
+  index came through as a tiny LFS pointer file and crashed `pickle.load`
+  with a cryptic "invalid load key" error until `lfs: true` got added; and a
+  GitHub Secret got set to the literal string `OPENAI_API_KEY=sk-...` instead
+  of just the key, which only showed up as a 401 once the run actually
+  reached the API call. None of these were logic bugs in the eval code
+  itself -- all infrastructure/config, and all things that only show up once
+  something runs somewhere other than your own machine.
 
 ## repo layout
 
