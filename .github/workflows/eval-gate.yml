@@ -1,0 +1,26 @@
+name: eval-gate
+
+"on":
+  pull_request:
+    paths:
+      - "subject_system/**"
+      - "configs/**"
+      - "runners/**"
+      - "evaluators/**"
+
+jobs:
+  smoke-eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: install deps
+        run: |
+          pip install pyyaml openai langchain langchain-openai numpy sentence-transformers
+      - name: run smoke eval gate
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        working-directory: runners
+        run: python ci_gate.py

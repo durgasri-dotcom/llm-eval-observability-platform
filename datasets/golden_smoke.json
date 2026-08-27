@@ -1,4 +1,4 @@
- {
+{
   "version": "smoke",
   "domain": "LangChain documentation, fast CI subset",
   "notes": "One question per tier, pulled from golden_v1.json. Runs on every PR. Full 30-question set runs separately, not on every commit.",
