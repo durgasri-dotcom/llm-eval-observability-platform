@@ -13,12 +13,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: install deps
         run: |
           pip install pyyaml openai langchain langchain-openai numpy sentence-transformers
+
       - name: run smoke eval gate
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
